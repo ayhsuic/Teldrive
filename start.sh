@@ -5,10 +5,12 @@ set -e
 echo "正在生成 Teldrive 配置文件: /telcloud/config.toml"
 echo "[db]
 data-source = \"${DB_DATA_SOURCE}\"
-prepare-stmt = ${DB_PREPARE_STMT}
+prepare-stmt = false
 
 [db.pool]
-enable = ${DB_POOL_ENABLE}
+enable = true
+max-open = 20
+max-idle = 10
 
 [jwt]
 allowed-users = [\"${JWT_ALLOWED_USERS}\"]
@@ -18,8 +20,8 @@ secret = \"${JWT_SECRET}\"
 encryption-key = \"${TG_UPLOADS_ENCRYPTION_KEY}\"
 
 [tg.stream]
-multi-threads = ${TG_STREAM_MULTI_THREADS}
-stream-buffers = ${TG_STREAM_STREAM_BUFFERS}" > "/telcloud/config.toml"
+multi-threads = 6
+stream-buffers = 20" > "/telcloud/config.toml"
 
 # 生成 Rclone 配置文件
 echo "正在生成 Rclone 配置文件: /telcloud/rclone.conf"
