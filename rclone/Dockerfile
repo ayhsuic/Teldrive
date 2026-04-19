@@ -1,11 +1,23 @@
-# 使用官方的 tgdrive/rclone 镜像作为基础
-FROM ghcr.io/tgdrive/rclone:latest
+FROM ghcr.io/tgdrive/rclone AS rclone
+FROM debian
+COPY --from=rclone /usr/local/bin/rclone /usr/local/bin/rclone
 
-# 将我们的启动脚本复制到容器中
-COPY start.sh /start.sh
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
-# 赋予脚本执行权限
-RUN chmod +x /start.sh
+ENV RCLONE_CONFIG_TELDRIVE_TYPE=teldrive
+ENV RCLONE_CONFIG_TELDRIVE_CHUNK_SIZE=500M
+ENV RCLONE_CONFIG_TELDRIVE_UPLOAD_CONCURRENCY=4
+ENV RCLONE_CONFIG_TELDRIVE_ENCRYPT_FILES=false
+ENV RCLONE_CONFIG_TELDRIVE_RANDOM_CHUNK_NAME=false
 
-# 设置容器的入口点 (启动时执行的命令)
-ENTRYPOINT ["/start.sh"]
+ENV RCLONE_CONFIG_TELDRIVE_API_HOST="http://localhost:8080"
+ENV RCLONE_CONFIG_TELDRIVE_ACCESS_TOKEN=""
+ENV USER="admin"
+ENV PASS="password"
+
+ENTRYPOINT /usr/local/bin/rclone serve webdav teldrive: \
+    --addr :7860 \
+    --user "${USER}" \
+    --pass "${PASS}" \
+    --cache-dir /cache \
+    --vfs-cache-mode full
