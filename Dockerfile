@@ -56,9 +56,7 @@ ENV RCLONE_CONFIG_TELDRIVE_TYPE=teldrive \
 
 RUN cat << 'EOF' > /etc/nginx/nginx.conf
 pid /tmp/nginx.pid;
-events {
-    worker_connections 1024;
-}
+events {worker_connections 1024;}
 http {
     client_max_body_size 2000M;
     server {
