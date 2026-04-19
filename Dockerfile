@@ -1,12 +1,14 @@
 FROM ghcr.io/tgdrive/teldrive AS teldrive
-FROM ghcr.io/tgdrive/rclone AS rclone
-
 FROM debian
 
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
 COPY --from=teldrive /teldrive /teldrive
-COPY --from=rclone /usr/local/bin/rclone /usr/local/bin/rclone
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
-
-ENTRYPOINT ["/start.sh"]
+ENTRYPOINT /teldrive run \
+    --db-data-source="${DB_DATA_SOURCE}" \
+    --db-prepare-stmt=false \
+    --jwt-allowed-users="${JWT_ALLOWED_USERS}" \
+    --jwt-secret="${JWT_SECRET}" \
+    --tg-uploads-encryption-key="${TG_UPLOADS_ENCRYPTION_KEY}" \
+    --server-port=7860
