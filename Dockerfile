@@ -65,8 +65,7 @@ http {
     }
 
     server {
-        listen 7860;
-        http2 on;
+        listen 7860 http2;
         port_in_redirect off;
         absolute_redirect off;
         proxy_http_version 1.1;
