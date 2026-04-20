@@ -55,7 +55,7 @@ ENV USER="admin" \
 
 RUN cat << 'EOF' > /etc/nginx/nginx.conf
 pid /tmp/nginx.pid;
-events {worker_connections 1024;}
+events {}
 http {
     include /etc/nginx/mime.types;
     client_max_body_size 2000M;
@@ -66,6 +66,7 @@ http {
 
     server {
         listen 7860;
+        http2 on;
         port_in_redirect off;
         absolute_redirect off;
         proxy_http_version 1.1;
