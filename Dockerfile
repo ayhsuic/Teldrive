@@ -9,6 +9,7 @@ RUN apt-get update \
     nginx \
     supervisor \
     ca-certificates \
+    libnginx-mod-stream \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=teldrive /teldrive /usr/local/bin/teldrive
@@ -54,8 +55,21 @@ ENV USER="admin" \
     RCLONE_CONFIG_TELDRIVE_API_HOST="http://127.0.0.1:8080"
 
 RUN cat << 'EOF' > /etc/nginx/nginx.conf
+load_module /usr/lib/nginx/modules/ngx_stream_module.so;
 pid /tmp/nginx.pid;
 events {}
+
+stream {
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    server {
+        listen 80;
+        ssl_preread on;
+        proxy_pass $ssl_preread_server_name:$server_port;
+    }
+}
+
 http {
     include /etc/nginx/mime.types;
     client_max_body_size 2000M;
